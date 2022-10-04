@@ -47,8 +47,8 @@ def generateAblityModifier(baseScore):
     abilityModifier = -5
     abilityScoreTable = 0
     while abilityScoreTable < 30:
-            if baseScore == abilityScoreTable or baseScore == (abilityScoreTable + 1):
-                break
-            abilityScoreTable += 2
-            abilityModifier += 1
+        if baseScore == abilityScoreTable or baseScore == (abilityScoreTable + 1):
+            break
+        abilityScoreTable += 2
+        abilityModifier += 1
     return abilityModifier
