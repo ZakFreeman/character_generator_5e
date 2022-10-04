@@ -6,6 +6,24 @@ from tkinter import ttk
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
 
+################################################
+# TODO
+def generateAblityModifier(baseScore):
+    """Called to generate the modifier for a given ability score, baseScore."""
+    mod_var = StringVar()
+    if baseScore == '':
+        return mod_var
+    int(baseScore)
+    abilityModifier = -5
+    abilityScoreTable = 0
+    while abilityScoreTable < 30:
+        if baseScore == abilityScoreTable or baseScore == (abilityScoreTable + 1):
+            break
+        abilityScoreTable += 2
+        abilityModifier += 1
+    mod_var.set(str(abilityModifier))
+    return mod_var
+
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
     position of column and row for the grid."""
@@ -27,11 +45,17 @@ def abilityEntry(abilityName, row):
     ent_ability = Entry(frm_abilities, width=3, textvariable=ent_ability_var)
     ent_ability.grid(row=row, column=1, **padding)
 
+
     return ent_ability_var
 
+##############################################
+# TODO
 def strCallback(*args):
-    """These all do the same thing, couldn't figure out a way to pass an index in a 
-    list. Hardcoded this for the time being."""
+    """Calculate the ability modifier for strength."""
+    strVar = generateAblityModifier(charStr_var.get())
+    lbl_mod = Label(frm_abilities, textvariable=strVar)
+    lbl_mod.grid(column=2, row=0, **padding)
+    
     print(charStr_var.get())
 
 def dexCallback(*args):
@@ -49,18 +73,7 @@ def wisCallback(*args):
 def chaCallback(*args):
     print(charCha_var.get())
 
-'''
-def generateAblityModifier(baseScore):
-    """Called to generate the modifier for a given ability score, baseScore."""
-    abilityModifier = -5
-    abilityScoreTable = 0
-    while abilityScoreTable < 30:
-            if baseScore == abilityScoreTable or baseScore == (abilityScoreTable + 1):
-                break
-            abilityScoreTable += 2
-            abilityModifier += 1
-    return abilityModifier
-'''
+
 
 window = Tk()
 window.title("Character Sheet")
