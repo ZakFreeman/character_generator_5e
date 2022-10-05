@@ -1,6 +1,6 @@
-from __future__ import absolute_import
 from tkinter import *
 from tkinter import ttk
+import headers
 
 
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
@@ -10,9 +10,9 @@ def generateAblityModifier(baseScore):
     """Called to generate the modifier for a given ability score, baseScore. Takes 
     a StringVar, so need to convert that to an int, then process it."""
     mod_var = StringVar()
-    # Return 0 if an entry field is blank.
+    # Return _ if an entry field is blank.
     if baseScore == '':
-        mod_var.set('0')
+        mod_var.set('_')
         return mod_var
     # Math for calculating the ability modifier, from 0->30
     baseScore = int(baseScore)
@@ -28,6 +28,12 @@ def generateAblityModifier(baseScore):
     return mod_var
 
 
+
+def emptyFrame(master, bwidth, rel):
+    """Make an empty frame with passed args, master, borderwidth, and relief."""
+    return ttk.Frame(master, borderwidth=bwidth, relief=rel )
+
+
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
     position of column and row for the grid."""
@@ -37,25 +43,38 @@ def basicInfoEntry(lbl_name, column, row):
     ent_string_var = StringVar()
     ent_entryName = ttk.Entry(frm_basicInfo, textvariable=str(ent_string_var))
     ent_entryName.grid(column=column+1, row=row, **padding, sticky="W")
-    
     return ent_string_var
 
 
 def abilityEntry(abilityName, row):
-    """Generate a StringVar to hold an abilities text entry."""
+    """Generate a StringVar to hold an ability's text entry."""
     ent_ability_var = StringVar()
+    # Input Validation
+    vcmd = (window.register(abilValidate), '%P')
     lbl_ability = Label(frm_abilities, text=f'{abilityName}:')
-    lbl_ability.grid(row=row)
-    ent_ability = Entry(frm_abilities, width=3, textvariable=ent_ability_var)
+    lbl_ability.grid(row=row, sticky='W')
+    ent_ability = Entry(
+        frm_abilities,
+        width=3,
+        textvariable=ent_ability_var,
+        validate='key',
+        validatecommand=vcmd
+    )
     ent_ability.grid(row=row, column=1, **padding)
-
     return ent_ability_var
+
+
+def skillEntry(skillName, row):
+    skillChkbox = ttk.Checkbutton(frm_skills)
+    skillChkbox.grid(column=0, row=row, **padding)
+    lbl_skill = ttk.Label(frm_skills, text=skillName)
+    lbl_skill.grid(column=1,row=row, **padding, sticky='W')
 
 
 def abilCallback(*args):
     """Called when .trace() is used in one of the ability score fields."""
     for i in range(len(abilList)):
-        abilCallbackHandler(abilList[i], i)
+        abilCallbackHandler(abilList[i], i+1)
 
 
 def abilCallbackHandler(abilStrVar, row):
@@ -66,6 +85,19 @@ def abilCallbackHandler(abilStrVar, row):
     lbl_mod.grid(column=2, row=row)
 
 
+def abilValidate(P):
+    if len(P) == 0:
+        return True
+    elif len(P) == 1 and P.isdigit():
+        return True
+    elif len(P) == 2 and P.isdigit():
+        return True
+    else:
+        window.bell()
+        return False
+
+
+# Create the Tk class object called Character sheet.        
 window = Tk()
 window.title("Character Sheet")
 
@@ -77,16 +109,23 @@ mainframe.grid(column=0, row=0, sticky="nsew")
 window.columnconfigure(0, weight=1)
 window.rowconfigure(0, weight=1)
 
-# Create a frame for basic character information.
-frm_basicInfo = ttk.Frame(
-    mainframe,
-    borderwidth=5,
-    relief=GROOVE
-)
-frm_basicInfo.grid(column=0, row=0)  # Might need a columnspan=3|6?
+# Create a frame for basic character info.
+frm_basicInfo = emptyFrame(mainframe, 5, GROOVE)
+frm_basicInfo.grid(column=0, row=0, columnspan=10)  # Formatting compromise: columnspan
+
+# Create a frame for ability scores, modifiers.
+frm_abilities = emptyFrame(mainframe, 5, GROOVE)
+frm_abilities.grid(column=0, row=1, pady=5, sticky="NWE")
+
+# Create a frame for skills, and proficiency buttons.
+frm_skills = emptyFrame(mainframe, 5, GROOVE)
+frm_skills.grid(column=1, row=1, **padding, sticky="W")
+
+# Create a frame for the button.
+frm_button = emptyFrame(mainframe, 5, GROOVE)
+frm_button.grid(column=2, row=1, sticky="SE")
 
 # Create all of the basic information for a new character, place at top of screen.
-basicInfoDict = {}
 charName_var = basicInfoEntry("Name:", 0, 0)
 charClass_var = basicInfoEntry("Class:", 0, 1)
 charRace_var = basicInfoEntry("Race:", 2, 0)
@@ -94,28 +133,29 @@ charLevel_var = basicInfoEntry("Level:", 2, 1)
 charAlign_var = basicInfoEntry("Alignment:", 4, 0)
 charBg_var = basicInfoEntry("Background:", 4, 1)
 
-# Make the frame for ability scores, modifiers, and saving throws.
-frm_abilities = ttk.Frame(
-    mainframe,
-    borderwidth=5, 
-    relief=GROOVE
-    )
-frm_abilities.grid(column=0, row=1, pady=5, sticky="W")  # Might need columnspan=2?
+# Create headers for the ability frame.
+headers.abilHeader(frm_abilities)
 
-# Create a list holding the StringVar objects with the ability scores inside them.
+# Create a list holding StringVar objects with the ability scores inside them.
 abilList = []
 for row, abil in enumerate(ABILITY_NAMES):
-    abilList.append(abilityEntry(abil, row))
+    abilList.append(abilityEntry(abil, row+1))
 
 # Generate the modifiers for the ability scores using .trace() 
 for i in range(len(abilList)):
     abilList[i].trace('w', abilCallback)
 
+headers.skillHeader(frm_skills)
+
+with open('skills.txt', 'r') as sf:
+    skillList = sf.readlines()
+
+    for row, skill in enumerate(skillList):
+        skillEntry(skill.strip(), row+1)
 
 def handle_button():
-    print(abilList[0].get())
+    print(skillList[0].strip().split(','))
 
-button = ttk.Button(text="Print values", command=handle_button)
-button.grid(column=1, row=1, **padding)
-
+button = ttk.Button(frm_button, text="Print values", command=handle_button)
+button.pack()
 window.mainloop()
