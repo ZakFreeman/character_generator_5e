@@ -73,6 +73,8 @@ def skillLbl(skillName, row):
     # Skill bonus.
     #lbl_sBonus = ttk.Label(frm_skills, text=)
 
+#####################################################################
+# TODO
 def skillModGen(mDict):
     for row, skill in enumerate(skillList):
         mod = skill[:3]
