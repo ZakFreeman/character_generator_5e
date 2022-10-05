@@ -1,0 +1,18 @@
+STR, Athletics
+DEX, Acrobatics
+DEX, Sleight of Hand
+DEX, Stealth
+INT, Arcana
+INT, History
+INT, Investigation
+INT, Nature
+INT, Religion
+WIS, Animal Handling
+WIS, Insight
+WIS, Medicine
+WIS, Perception
+WIS, Survival
+CHA, Deception
+CHA, Intimidation
+CHA, Performance
+CHA, Persuasion
