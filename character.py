@@ -44,6 +44,7 @@ def generateAbilityScores():
 
 def generateAblityModifier(baseScore):
     """Called to generate the modifier for a given ability score, baseScore."""
+    baseScore = int(baseScore)
     abilityModifier = -5
     abilityScoreTable = 0
     while abilityScoreTable < 30:
