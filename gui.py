@@ -6,14 +6,16 @@ from tkinter import ttk
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
 
-################################################
-# TODO
 def generateAblityModifier(baseScore):
-    """Called to generate the modifier for a given ability score, baseScore."""
+    """Called to generate the modifier for a given ability score, baseScore. Takes 
+    a StringVar, so need to convert that to an int, then process it."""
     mod_var = StringVar()
+    # Return 0 if an entry field is blank.
     if baseScore == '':
+        mod_var.set('0')
         return mod_var
-    int(baseScore)
+    # Math for calculating the ability modifier, from 0->30
+    baseScore = int(baseScore)
     abilityModifier = -5
     abilityScoreTable = 0
     while abilityScoreTable < 30:
@@ -21,8 +23,10 @@ def generateAblityModifier(baseScore):
             break
         abilityScoreTable += 2
         abilityModifier += 1
+    # Make the modifier a str again, to assign it to a Label.
     mod_var.set(str(abilityModifier))
     return mod_var
+
 
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
@@ -45,34 +49,21 @@ def abilityEntry(abilityName, row):
     ent_ability = Entry(frm_abilities, width=3, textvariable=ent_ability_var)
     ent_ability.grid(row=row, column=1, **padding)
 
-
     return ent_ability_var
 
-##############################################
-# TODO
-def strCallback(*args):
-    """Calculate the ability modifier for strength."""
-    strVar = generateAblityModifier(charStr_var.get())
+
+def abilCallback(*args):
+    """Called when .trace() is used in one of the ability score fields."""
+    for i in range(len(abilList)):
+        abilCallbackHandler(abilList[i], i)
+
+
+def abilCallbackHandler(abilStrVar, row):
+    """Handles argument input for the .trace() callback for ability score fields.
+    Dynamically creates the labels showing ability score modifiers."""
+    strVar = generateAblityModifier(abilStrVar.get())
     lbl_mod = Label(frm_abilities, textvariable=strVar)
-    lbl_mod.grid(column=2, row=0, **padding)
-    
-    print(charStr_var.get())
-
-def dexCallback(*args):
-    print(charDex_var.get())
-
-def conCallback(*args):
-    print(charCon_var.get())
-
-def intCallback(*args):
-    print(charInt_var.get())
-
-def wisCallback(*args):
-    print(charWis_var.get())
-
-def chaCallback(*args):
-    print(charCha_var.get())
-
+    lbl_mod.grid(column=2, row=row)
 
 
 window = Tk()
@@ -95,6 +86,7 @@ frm_basicInfo = ttk.Frame(
 frm_basicInfo.grid(column=0, row=0)  # Might need a columnspan=3|6?
 
 # Create all of the basic information for a new character, place at top of screen.
+basicInfoDict = {}
 charName_var = basicInfoEntry("Name:", 0, 0)
 charClass_var = basicInfoEntry("Class:", 0, 1)
 charRace_var = basicInfoEntry("Race:", 2, 0)
@@ -110,25 +102,18 @@ frm_abilities = ttk.Frame(
     )
 frm_abilities.grid(column=0, row=1, pady=5, sticky="W")  # Might need columnspan=2?
 
-# Generate entry fields and labels for a given ability. Messy, got stuck.
-# Couldn't loop because of .trace() on the StringVar's being returned from 
-# abilityEntry().
-charStr_var = abilityEntry(ABILITY_NAMES[0], 0)
-charStr_var.trace('w', strCallback)
-charDex_var = abilityEntry(ABILITY_NAMES[1], 1)
-charDex_var.trace('w', dexCallback)
-charCon_var = abilityEntry(ABILITY_NAMES[2], 2)
-charCon_var.trace('w', conCallback)
-charInt_var = abilityEntry(ABILITY_NAMES[3], 3)
-charInt_var.trace('w', intCallback)
-charWis_var = abilityEntry(ABILITY_NAMES[4], 4)
-charWis_var.trace('w', wisCallback)
-charCha_var = abilityEntry(ABILITY_NAMES[5], 5)
-charCha_var.trace('w', chaCallback)
+# Create a list holding the StringVar objects with the ability scores inside them.
+abilList = []
+for row, abil in enumerate(ABILITY_NAMES):
+    abilList.append(abilityEntry(abil, row))
+
+# Generate the modifiers for the ability scores using .trace() 
+for i in range(len(abilList)):
+    abilList[i].trace('w', abilCallback)
 
 
 def handle_button():
-    print()
+    print(abilList[0].get())
 
 button = ttk.Button(text="Print values", command=handle_button)
 button.grid(column=1, row=1, **padding)
