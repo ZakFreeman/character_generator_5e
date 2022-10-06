@@ -1,19 +1,18 @@
 from tkinter import *
 from tkinter import ttk
 import headers
-import character
+import os
 
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
 
 def generateAblityModifier(baseScore):
-    """Called to generate the modifier for a given ability score, baseScore. Takes 
-    a StringVar, so need to convert that to an int, then process it."""
-    mod_var = StringVar()
+    """Called to generate the modifier for a given ability score, baseScore. Convert
+    string input to int, process, return string."""
     # Return _ if an entry field is blank.
     if baseScore == '':
-        mod_var.set('_')
-        return mod_var
+        modStr = '_'
+        return modStr
     # Math for calculating the ability modifier, from 0->30
     baseScore = int(baseScore)
     abilityModifier = -5
@@ -23,9 +22,8 @@ def generateAblityModifier(baseScore):
             break
         abilityScoreTable += 2
         abilityModifier += 1
-    # Make the modifier a str again, to assign it to a Label.
-    mod_var.set(str(abilityModifier))
-    return mod_var
+    abilityModifier = str(abilityModifier)
+    return abilityModifier
 
 
 def basicInfoEntry(lbl_name, column, row):
@@ -42,7 +40,6 @@ def basicInfoEntry(lbl_name, column, row):
 
 def abilityEntry(abilityName, row):
     """Generate a StringVar to hold an ability's text entry."""
-    ent_ability_var = StringVar()
     # Input Validation
     vcmd = (window.register(abilValidate), '%P')
     lbl_ability = Label(frm_abilities, text=f'{abilityName}:')
@@ -50,12 +47,12 @@ def abilityEntry(abilityName, row):
     ent_ability = Entry(
         frm_abilities,
         width=3,
-        textvariable=ent_ability_var,
         validate='key',
         validatecommand=vcmd
     )
     ent_ability.grid(row=row, column=1, **padding)
-    return ent_ability_var
+
+    return ent_ability
 
 
 def skillLbl(skillName, row):
@@ -76,45 +73,23 @@ def skillLbl(skillName, row):
 #####################################################################
 # TODO
 def skillModGen(mDict):
-    for row, skill in enumerate(skillList):
-        mod = skill[:3]
-        print(mDict)
-        """
-        if mDict[mod]:
-            lbl_mod = Label(frm_skills, text=mDict[mod][0])
-            lbl_mod.grid(column=3, row=row+1)
-        if mDict[mod]:
-            lbl_mod = Label(frm_skills, text=mDict[mod][1])
-            lbl_mod.grid(column=3, row=row+1)
-        """
-def abilCallback(*args):
-    """Called when .trace() is used in one of the ability score fields."""
-    modList = []
-    modDict = {}
+    pass
+
+def abilModLbls(abil, row):
+    lbl_ability_mod = Label(frm_abilities, text=modDict[abil])
+    lbl_ability_mod.grid(column=2, row=row)
+
+def modGen(event):
     for i in range(len(abilList)):
-        modList.append(abilCallbackHandler(abilList[i], i+1).get())
-    
-    for ability in ABILITY_NAMES:
-        modDict[ability] = modList
+        modDict[ABILITY_NAMES[i]] = generateAblityModifier(abilList[i].get())
+        abilModLbls(ABILITY_NAMES[i], i+1)
+    return modDict
 
-    skillModGen(modDict)
-
-def abilCallbackHandler(abilStrVar, row):
-    """Handles argument input for the .trace() callback for ability score fields.
-    Dynamically creates the labels showing ability score modifiers."""
-    strVar = generateAblityModifier(abilStrVar.get())
-    lbl_mod = Label(frm_abilities, textvariable=strVar)
-    lbl_mod.grid(column=2, row=row)
-    return strVar
 
 def abilValidate(P):
     """Input validation for the ability score input fields. Only accepts 
     numbers, and only 2 characters in the field."""
-    if len(P) == 0:
-        return True
-    elif len(P) == 1 and P.isdigit():
-        return True
-    elif len(P) == 2 and P.isdigit():
+    if len(P) == 0 or (len(P) ==1 and P.isdigit()) or (len(P) ==2 and P.isdigit()):
         return True
     else:
         window.bell()
@@ -124,7 +99,8 @@ def abilValidate(P):
 # Create the Tk class object called Character sheet.        
 window = Tk()
 window.title("Character Sheet")
-
+# Will Regenerate ability modifiers if any keys is pressed, allowing for changes.
+modDict= window.bind('<Key>', modGen)
 # Basic 5x5 padding to pass.
 padding = {'padx': 5, 'pady': 5}
 
@@ -162,8 +138,11 @@ charBg_var = basicInfoEntry("Background:", 4, 1)
 # Create headers for the skills frame
 headers.skillHeader(frm_skills)
 
+# Get the path of the charSkills file.
+absFilePath = os.path.dirname(os.path.abspath(__file__))
+skillFile = os.path.join(absFilePath, 'charSkills.txt')
 # Create skills labels with file data.
-with open('skills.txt', 'r') as sf:
+with open(skillFile, 'r') as sf:
     skillList = sf.readlines()
     for row, skill in enumerate(skillList):
         skillLbl(skill.strip(), row+1)
@@ -172,19 +151,23 @@ with open('skills.txt', 'r') as sf:
 # Create headers for the ability frame.
 headers.abilHeader(frm_abilities)
 
-# Create a list holding StringVar objects with the ability scores inside them.
+# Create a list holding Entry objects.
+modDict = {}
 abilList = []
 for row, abil in enumerate(ABILITY_NAMES):
     abilList.append(abilityEntry(abil, row+1))
 
-# Generate the modifiers for the ability scores using .trace() 
+# Populate the modifier dictionary like e.g. 'STR': 2. Updates on keypress.
 for i in range(len(abilList)):
-    abilList[i].trace('w', abilCallback)
+    modDict[ABILITY_NAMES[i]] = abilList[i].get()
+
+for row, abil in enumerate(ABILITY_NAMES):
+    abilModLbls(abil, row+1)
 
 
 
 def handle_button():
-    print(abilList[0].get())
+    print(modDict)
 
 button = ttk.Button(frm_button, text="Print values", command=handle_button)
 button.pack()
