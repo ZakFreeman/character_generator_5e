@@ -1,5 +1,8 @@
 from tkinter import *
 from tkinter import ttk
+
+padding = {'padx':5, 'pady':5}
+
 def abilHeader(frame):
     lbl_abilHeader = Label(frame, text='Ability')
     lbl_abilHeader.grid(column=0, row=0, padx=2)
