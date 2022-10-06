@@ -57,7 +57,7 @@ def abilityEntry(abilityName, row):
 
 def skillLbl(skillName, row):
     '''Creates a label for the skills passed from skills.txt. Place'''
-    mod, skill = skillName.split(',')
+    skill, mod = skillName.split(',')
     # Checkbox for proficiencies.
     skillChkbox = ttk.Checkbutton(frm_skills)
     skillChkbox.grid(column=0, row=row, **padding)
@@ -67,23 +67,46 @@ def skillLbl(skillName, row):
     # Skill name.
     lbl_skill = ttk.Label(frm_skills, text=skill)
     lbl_skill.grid(column=2,row=row, **padding, sticky='W')
-    # Skill bonus.
-    #lbl_sBonus = ttk.Label(frm_skills, text=)
 
-#####################################################################
-# TODO
-def skillModGen(mDict):
-    pass
-
-def abilModLbls(abil, row):
-    lbl_ability_mod = Label(frm_abilities, text=modDict[abil])
-    lbl_ability_mod.grid(column=2, row=row)
+def skillModLbls(skill, row):
+    """Create the label showing the skill bonus."""
+    abilName = skill[-4:].strip()
+    if abilName == "STR":
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    elif abilName == 'DEX':
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    elif abilName == 'CON':
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    elif abilName == 'INT':
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    elif abilName == 'WIS':
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    elif abilName == 'CHA':
+        lbl_skill_mod = Label(frm_skills, text=modDict[abilName])
+        lbl_skill_mod.grid(column=3, row=row)
+    
 
 def modGen(event):
+    """Generate ability score modifiers, gets called with any keypress."""
+    # Create the modifier dictionary, then the modifier labels.
     for i in range(len(abilList)):
         modDict[ABILITY_NAMES[i]] = generateAblityModifier(abilList[i].get())
         abilModLbls(ABILITY_NAMES[i], i+1)
+    # Create skill modifier labels.
+    for row, skill in enumerate(skillList):
+        skillModLbls(skill, row+1)
     return modDict
+
+
+def abilModLbls(abil, row):
+    """For each item in the ability list, generate a label."""
+    lbl_ability_mod = Label(frm_abilities, text=modDict[abil])
+    lbl_ability_mod.grid(column=2, row=row)
 
 
 def abilValidate(P):
@@ -135,19 +158,6 @@ charLevel_var = basicInfoEntry("Level:", 2, 1)
 charAlign_var = basicInfoEntry("Alignment:", 4, 0)
 charBg_var = basicInfoEntry("Background:", 4, 1)
 
-# Create headers for the skills frame
-headers.skillHeader(frm_skills)
-
-# Get the path of the charSkills file.
-absFilePath = os.path.dirname(os.path.abspath(__file__))
-skillFile = os.path.join(absFilePath, 'charSkills.txt')
-# Create skills labels with file data.
-with open(skillFile, 'r') as sf:
-    skillList = sf.readlines()
-    for row, skill in enumerate(skillList):
-        skillLbl(skill.strip(), row+1)
-
-
 # Create headers for the ability frame.
 headers.abilHeader(frm_abilities)
 
@@ -161,13 +171,25 @@ for row, abil in enumerate(ABILITY_NAMES):
 for i in range(len(abilList)):
     modDict[ABILITY_NAMES[i]] = abilList[i].get()
 
+# Generate the labels that display the modifiers for ability scores.
 for row, abil in enumerate(ABILITY_NAMES):
     abilModLbls(abil, row+1)
 
+# Create headers for the skills frame
+headers.skillHeader(frm_skills)
 
-
+# Get the path of the charSkills file.
+absFilePath = os.path.dirname(os.path.abspath(__file__))
+skillFile = os.path.join(absFilePath, 'charSkills.txt')
+# Create skills labels with file data.
+with open(skillFile, 'r') as sf:
+    skillList = sf.readlines()
+    skillList.sort()
+    for row, skill in enumerate(skillList):
+        skillLbl(skill.strip(), row+1)
+# Skills should probably be a dict, with a list of each one a mod affects.
 def handle_button():
-    print(modDict)
+    print(skillList)
 
 button = ttk.Button(frm_button, text="Print values", command=handle_button)
 button.pack()
