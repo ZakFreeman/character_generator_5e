@@ -76,6 +76,14 @@ def abilValidate(P):
         return False
 
 
+def statValidate(P):
+    if len(P) == 0 or (len(P) > 0 and P.isdigit()):
+        return True
+    else:
+        window.bell()
+        return False
+
+
 def skillLbl(skillName, row):
     '''Creates a label for the skills passed from skills.txt. Returns an IntVar
     to keep the checkboxes from coming in as black squares.'''
@@ -85,9 +93,10 @@ def skillLbl(skillName, row):
     skillChkbox = ttk.Checkbutton(
         frm_skills,
         variable=window.chkVar,
-        command=addProf(mod.strip())
+        command=addProf,
+        onvalue=row  # Returns the row the checkbutton is on.
     )
-    skillChkbox.grid(column=0, row=row, **padding)
+    skillChkbox.grid(column=0, row=row, **padding, columnspan=3,sticky='NEWS')
     # Modifier affecting the skill.
     lbl_mod = ttk.Label(frm_skills, text=mod.strip())
     lbl_mod.grid(column=1,row=row, **padding)
@@ -97,12 +106,23 @@ def skillLbl(skillName, row):
     return window.chkVar
 
 ###########################################################################
-# TODO Implement this guy. Currently Running once for each skill on startup.
-def addProf(abilMod):
-    pass
+# TODO Incredibly inefficient. Lags way the hell out. Rewrite.
+def addProf():
+    '''
+    # Values from .get() are row numbers
+    for row in chkboxList:
+        for key, value in skillModDict.items():
+            if statDict['PROFICIENCY'].get() == '' or value == '_':
+                pass
+            elif row.get() == key:
+                # Write a new label when the button is pressed.
+                lbl_profMod = Label(
+                frm_skills,
+                text=int(value)+int(statDict['PROFICIENCY'].get())
+                )
+                lbl_profMod.grid(column=3, row=row.get())'''
 
-
-def skillModLbls(skill, row):
+def skillBonusLbls(skill, row):
     """Create the label showing the skill bonus."""
     abilName = skill[-4:].strip()
     if abilName == "STR":
@@ -133,7 +153,11 @@ def modGen(event):
         abilModLbls(ABILITY_NAMES[i], i+1)
     # Create skill modifier labels.
     for row, skill in enumerate(skillList):
-        skillModLbls(skill, row+1)
+        skillBonusLbls(skill, row+1)
+        # Populate the dictionary holding skill modifiers.
+        skillModDict[row+1] = abilModDict[skill[-4:].strip()]
+        if not statDict['PROFICIENCY'] == '':
+            addProf()
     return abilModDict
 
 def statEntry(stat, col, row):
@@ -147,7 +171,13 @@ def statEntry(stat, col, row):
         chk_stat = ttk.Checkbutton(frm_stat, variable=window.chkVar, text='Advantage')
         chk_stat.grid(column=col, row=row+1)
         return chk_stat
-    ent_stat = Entry(frm_stat, width=4)
+    vcmd = (window.register(statValidate), '%P')
+    ent_stat = Entry(
+        frm_stat,
+        width=4,
+        validate='key',
+        validatecommand=vcmd
+    )
     ent_stat.grid(column=col, row=row+1, **padding)
     return ent_stat
 
@@ -156,6 +186,7 @@ window = Tk()
 window.title("Character Sheet")
 # Will Regenerate ability modifiers if any key is pressed, allowing for changes.
 abilModDict= window.bind('<Key>', modGen)
+window.bind('<Button-1>', modGen)
 padding = {'padx': 5, 'pady': 5}
 
 mainframe = ttk.Frame(window, padding="10 10 10 10")
@@ -216,9 +247,7 @@ skillFile = os.path.join(absFilePath, 'charSkills.txt')
 # This will hold IntVar objects that need to be set to 0.
 chkboxList = []
 # Create skills labels with file data.
-#################################################################################
-# TODO Fill this dictionary to update the modifiers displayed for skills.
-skillModList = {}  # Holds Skillname:mod
+skillModDict = {}  # Holds skillrow:mod
 with open(skillFile, 'r') as sf:
     skillList = sf.readlines()
     skillList.sort()
@@ -238,7 +267,7 @@ for i, stat in enumerate(STATS):
     statDict[stat] = (statEntry(stat, sCol, sRow))
 
 def handle_button():
-    print(statDict['ARMOR CLASS'].get())
+    print(skillModDict)
 button = ttk.Button(frm_button, text="Print values", command=handle_button)
 button.pack()
 window.mainloop()
