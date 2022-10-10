@@ -1,3 +1,4 @@
+from audioop import add
 from concurrent.futures.process import _system_limits_checked
 from tkinter import *
 from tkinter import ttk
@@ -65,7 +66,6 @@ def genAbilMod(baseScore):
             break
         abilityScoreTable += 2
         abilityModifier += 1
-    abilityModifier = str(abilityModifier)
     return abilityModifier
 
 def abilValidate(P):
@@ -79,19 +79,18 @@ def abilValidate(P):
 
 
 def skillLbl(skillName, row):
-    '''Creates a label for the skills passed from skills.txt. Returns an IntVar
-    to keep the checkboxes from coming in as black squares.'''
+    """Creates a label for each skill passed from skills.txt. Also creates checkboxes."""
     skillsList = []
     skill, mod = skillName.split(',')
     # Checkbox for proficiencies.
-    window.chkVar = IntVar()
-    window.chkVar.set(0)  # Keeps Checkbuttons from starting filled.
+    chkVar = BooleanVar()
     skillChkbox = ttk.Checkbutton(
         frm_skills,
-        variable=window.chkVar,
+        command=addProf,
+        variable=chkVar,
     )
     skillChkbox.grid(column=0, row=row, **padding, sticky='NEWS')
-    skillsList.append(skillChkbox)
+    skillsList.append(chkVar)
     # Modifier affecting the skill.
     lbl_mod = ttk.Label(frm_skills, text=mod.strip())
     lbl_mod.grid(column=1,row=row, **padding)
@@ -104,14 +103,34 @@ def skillLbl(skillName, row):
     lbl_bonus = ttk.Label(frm_skills, text=skillbonus(lbl_mod.cget('text')))
     lbl_bonus.grid(column=3, row=row, **padding, sticky='E')
     skillsList.append(lbl_bonus)
-    skillsList.append(window.chkVar)  # Returns only to hold value. Not accessed.
     return skillsList
 
 def skillbonus(mod):
+    """Fetches the bonus from the label being displayed by the ability scores."""
     return abilDict[mod][2].cget('text')
 
 
+def addProf():
+    """Loops through the skill list to add proficiencies to any new checkboxes."""
+    for i in skillDict.keys():
+        if statDict['PROFICIENCY'].get() == '' or skillDict[i][3].cget('text') == '_':
+            pass
+        elif skillDict[i][0].get():  # Enter this block if the checkbox is on
+            profMod = int(statDict['PROFICIENCY'].get())
+            # Generate the modifier based off the input from ability score Entry object.
+            newMod = genAbilMod(abilDict[skillDict[i][1].cget('text')][1].get()) + profMod
+            skillDict[i][3].configure(text=newMod)
+        else:
+            skillDict[i][3].configure(text=skillbonus(skillDict[i][1].cget('text')))
+            
+def addProfCallback(event):
+    """Cheeky workaround to allow addProf to function as a Checkbox and an event.
+    Probably bad practice, but works well."""
+    addProf()
+
 def statEntry(stat, col, row):
+    """Creates the frames and Entry objects for the various stats of a character.
+    Returns the Entry Field object or Checkbutton object"""
     frm_stat = ttk.Frame(frm_stats, borderwidth=5, relief=GROOVE)
     frm_stat.grid(column=col, row=row, sticky="NWES", **padding)
     lbl_stat = Label(frm_stat, text=stat)
@@ -151,23 +170,26 @@ def genAbilBonus(event):
             abilDict[abil][2].configure(text=genAbilMod(abilDict[abil][1].get()))
 
 def genSkillBonus(event):
-    for skill in skillDict.keys():
-        
-        skillDict[skill][3].configure(text=genAbilMod(abilDict[skillDict[skill][1].cget('text')][1].get()))
+    """Generate the bonus displayed in the skills frame. Gets the score from the 
+    abilDict."""
+    for row in skillDict.keys():
+        # Changes the skill bonus label text to reflect the ability score bonus.
+        skillDict[row][3].configure(
+            text=genAbilMod(abilDict[skillDict[row][1].cget('text')][1].get()))
 
 
 
-# Create the Tk class object called Character sheet.        
+# Create the Tk class object titled Character sheet.        
 window = Tk()
 window.title("Character Sheet")
 # Will Regenerate ability modifiers when focus moves out of any Entry.
 window.bind_class('Entry','<FocusOut>', genAbilBonus)
 window.bind_class('Entry','<FocusOut>', genSkillBonus, add='+')
+window.bind_class('Entry', '<FocusOut>', addProfCallback, add='+')
 # Makes any widget clicked become focus.
 window.bind_all('<Button-1>', lambda event: event.widget.focus_set())
-#abilModDict= window.bind('<Key>', modGen)
+# Formatting
 padding = {'padx': 5, 'pady': 5}
-
 mainframe = ttk.Frame(window, padding="10 10 10 10")
 mainframe.grid(column=0, row=0, sticky="nsew")
 window.columnconfigure(0, weight=1)
