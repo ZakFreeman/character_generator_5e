@@ -1,5 +1,10 @@
 # character_generator_5e
 A character Generator for random D&D 5E characters, or characters from user input.
+10/10/22
+------
+Re-wrote the whole thing for better variable storage. Fully functional right now, 
+no lag. Next up are remaining entry fields.
+
 10/7/22
 ------
 Implemented checkbox functionality. It's inefficient, and refreshes on click or 
