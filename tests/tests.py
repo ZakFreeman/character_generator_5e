@@ -1,17 +1,13 @@
-import tkinter as Tk
-from tkinter import IntVar
-from tkinter.ttk import Frame, Checkbutton
-class TestGui(Frame):
-  def __init__(self, parent):
-      Frame.__init__(self, parent)
+import tkinter as tk
 
-      self.var1 = IntVar()
-      self.var1.set(0)
-      button = Checkbutton(parent,
-          text="Pick me, pick me!",
-          variable=self.var1)
-      button.grid()
+root = tk.Tk()
+root.config(bg="blue")
+root.bind_all("<Button-1>", lambda event: event.widget.focus_set())
 
-root = Tk.Tk()
-app = TestGui(root)
+frame = tk.Frame(root, bg="red")
+frame.pack(fill="both", expand=True, padx=40, pady=40)
+
+entry = tk.Entry(frame)
+entry.pack(fill="both", expand=True, padx=40, pady=40)
+
 root.mainloop()
