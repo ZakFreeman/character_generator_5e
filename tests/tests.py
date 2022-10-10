@@ -1,13 +1,23 @@
-import tkinter as tk
+from tkinter import *
 
-root = tk.Tk()
-root.config(bg="blue")
-root.bind_all("<Button-1>", lambda event: event.widget.focus_set())
+ws = Tk()
+ws.title('PythonGuides')
+ws.geometry('200x80')
 
-frame = tk.Frame(root, bg="red")
-frame.pack(fill="both", expand=True, padx=40, pady=40)
+def isChecked():
+    if cb.get() == 1:
+        btn['state'] = NORMAL
+        btn.configure(text='Awake!')
+    elif cb.get() == 0:
+        btn['state'] = DISABLED
+        btn.configure(text='Sleeping!')
+    else:
+        messagebox.showerror('PythonGuides', 'Something went wrong!')
 
-entry = tk.Entry(frame)
-entry.pack(fill="both", expand=True, padx=40, pady=40)
+cb = IntVar()
 
-root.mainloop()
+Checkbutton(ws, text="accept T&C", variable=cb, onvalue=1, offvalue=0, command=isChecked).pack()
+btn = Button(ws, text='Sleeping!', state=DISABLED, padx=20, pady=5)
+btn.pack()
+
+ws.mainloop()
