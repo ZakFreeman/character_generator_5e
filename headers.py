@@ -4,20 +4,24 @@ from tkinter import ttk
 padding = {'padx':5, 'pady':5}
 
 def abilHeader(frame):
-    lbl_abilHeader = Label(frame, text='Ability')
+    hFrame = ttk.Frame(frame, borderwidth=5, relief=GROOVE)
+    hFrame.grid(column=0, row=1, padx=5, pady=(5,0), sticky='NW')
+    lbl_abilHeader = Label(hFrame, text='Ability')
     lbl_abilHeader.grid(column=0, row=0, padx=2)
-    lbl_abilScoreHeader = Label(frame, text='Score')
+    lbl_abilScoreHeader = Label(hFrame, text='Score')
     lbl_abilScoreHeader.grid(column=1, row=0, padx=2)
-    lbl_abilModHeader = Label(frame, text='Mod')
+    lbl_abilModHeader = Label(hFrame, text='Mod')
     lbl_abilModHeader.grid(column=2, row=0, padx=2)
 
 
 def skillHeader(frame):
-    lbl_pHeader = Label(frame, text='Prof')
+    hFrame = ttk.Frame(frame, borderwidth=5, relief=GROOVE)
+    hFrame.grid(column=1, row=1, padx=5, pady=(5,0), sticky='NWES')
+    lbl_pHeader = Label(hFrame, text='Prof')
     lbl_pHeader.grid(column=0, row=0, padx=5)
-    lbl_mHeader = Label(frame, text='Mod')
-    lbl_mHeader.grid(column=1, row=0, padx=5, sticky='W')
-    lbl_sHeader = Label(frame, text="Skill")
-    lbl_sHeader.grid(column=2, row=0, padx=5, sticky='W')
-    lbl_bHeader = Label(frame, text='Bonus')
-    lbl_bHeader.grid(column=3, row=0, padx=5, sticky='E')
+    lbl_mHeader = Label(hFrame, text='Mod')
+    lbl_mHeader.grid(column=1, row=0, padx=5)
+    lbl_sHeader = Label(hFrame, text="Skill")
+    lbl_sHeader.grid(column=2, row=0, padx=5)
+    lbl_bHeader = Label(hFrame, text='Bonus')
+    lbl_bHeader.grid(column=3, row=0, padx=5)
