@@ -90,6 +90,7 @@ def skillLbl(skillName, row):
     skill, mod = skillName.split(',')
     # Checkbox for proficiencies.
     window.chkVar = IntVar()
+    window.chkVar.set(0)
     skillChkbox = ttk.Checkbutton(
         frm_skills,
         variable=window.chkVar,
@@ -108,6 +109,7 @@ def skillLbl(skillName, row):
 ###########################################################################
 # TODO Incredibly inefficient. Lags way the hell out. Rewrite.
 def addProf():
+    pass
     '''
     # Values from .get() are row numbers
     for row in chkboxList:
@@ -186,7 +188,6 @@ window = Tk()
 window.title("Character Sheet")
 # Will Regenerate ability modifiers if any key is pressed, allowing for changes.
 abilModDict= window.bind('<Key>', modGen)
-window.bind('<Button-1>', modGen)
 padding = {'padx': 5, 'pady': 5}
 
 mainframe = ttk.Frame(window, padding="10 10 10 10")
@@ -253,7 +254,6 @@ with open(skillFile, 'r') as sf:
     skillList.sort()
     for row, skill in enumerate(skillList):
         chkboxList.append(skillLbl(skill.strip(), row+1))
-        chkboxList[row].set(0)  # Setting IntVars to 0
         
 # Create the block holding various stat elements.
 sCol = 0
