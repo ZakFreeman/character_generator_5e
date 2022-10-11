@@ -31,3 +31,7 @@ def skillHeader(frame):
 def profHeader(frame):
     lbl_pHead = Label(frame, text='Proficiencies & Languages')
     lbl_pHead.grid(column=0, row=0)
+
+def equipHeader(frame):
+    lbl_eHead = Label(frame, text='Equipment')
+    lbl_eHead.grid(column=0, row=0)
