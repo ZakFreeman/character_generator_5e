@@ -47,6 +47,15 @@ def abilityEntry(abilityName, row):
     lbl_mod = Label(frm_abilities, text=genAbilMod(ent_ability.get()))
     lbl_mod.grid(column=2, row=row)
     abilList.append(lbl_mod)
+    # Checkbox for saving throw proficiency
+    chk_var = BooleanVar()
+    chk_save = ttk.Checkbutton(frm_abilities, variable=chk_var, command=addSaveProf)
+    chk_save.grid(column=3, row=row, **padding)
+    abilList.append(chk_var)
+    # Label for saving throw value
+    lbl_save = Label(frm_abilities, text=genAbilMod(ent_ability.get()))
+    lbl_save.grid(column=4, row=row)
+    abilList.append(lbl_save)
     return abilList
 
 
@@ -55,7 +64,7 @@ def genAbilMod(baseScore):
     string input to int, process, return string."""
     # Return _ if an entry field is blank.
     if baseScore == '':
-        modStr = '_'
+        modStr = '__'
         return modStr
     # Math for calculating the ability modifier, from 0->30
     baseScore = int(baseScore)
@@ -115,7 +124,7 @@ def skillbonus(mod):
 def addProf():
     """Loops through the skill list to add proficiencies to any new checkboxes."""
     for i in skillDict.keys():
-        if statDict['PROFICIENCY'].get() == '' or skillDict[i][3].cget('text') == '_':
+        if statDict['PROFICIENCY'].get() == '' or skillDict[i][3].cget('text') == '__':
             pass
         elif skillDict[i][0].get():  # Enter this block if the checkbox is on
             profMod = int(statDict['PROFICIENCY'].get())
@@ -126,20 +135,39 @@ def addProf():
             skillDict[i][3].configure(text=skillbonus(skillDict[i][1].cget('text')))
             
 
+def addSaveProf():
+    for i, abil in enumerate(abilDict.keys()):
+        if statDict['PROFICIENCY'].get() == '' or abilDict[abil][2].cget('text') == '__':
+            pass
+        elif abilDict[abil][3].get():
+            profMod = int(statDict['PROFICIENCY'].get())
+            # Generate the modifier based off the input from ability score Entry object.
+            newMod = genAbilMod(abilDict[abil][1].get()) + profMod
+            abilDict[abil][4].configure(text=newMod)
+        else:
+            abilDict[abil][4].configure(text=genAbilMod(abilDict[abil][1].get()))
+
+
 def addProfCallback(event):
     """Cheeky workaround to allow addProf to function as a Checkbox and an event.
     Probably bad practice, but works well."""
     addProf()
 
+def addSaveCallback(event):
+    """Cheeky workaround to allow addSaveProf to function as a Checkbox and an event.
+    Probably bad practice, but works well."""
+    addSaveProf()
 
 def genAbilBonus(event):
     """Generate the bonus for an ability score whenever focus leaves an Entry 
     object."""
     for abil in abilDict.keys():
         if abilDict[abil][1].get() == '':
-            abilDict[abil][2].configure(text='_')
+            abilDict[abil][2].configure(text='__')  # Ability bonus
+            abilDict[abil][4].configure(text='__')  # Save bonus
         if not abilDict[abil][1].get() == '':  # If the field isn't blank:
             abilDict[abil][2].configure(text=genAbilMod(abilDict[abil][1].get()))
+            abilDict[abil][4].configure(text=genAbilMod(abilDict[abil][1].get()))
 
 
 def genSkillBonus(event):
@@ -155,9 +183,10 @@ def genSkillBonus(event):
 window = Tk()
 window.title("Character Sheet")
 # Will Regenerate ability modifiers when focus moves out of any Entry.
-window.bind_class('Entry','<FocusOut>', genAbilBonus)
-window.bind_class('Entry','<FocusOut>', genSkillBonus, add='+')
+window.bind_class('Entry', '<FocusOut>', genAbilBonus)
+window.bind_class('Entry', '<FocusOut>', genSkillBonus, add='+')
 window.bind_class('Entry', '<FocusOut>', addProfCallback, add='+')
+window.bind_class('Entry', '<FocusOut>', addSaveCallback, add='+')
 # Makes any widget clicked become focus.
 window.bind_all('<Button-1>', lambda event: event.widget.focus_set())
 # Formatting
@@ -190,11 +219,12 @@ frm_button.grid(column=2, row=3, sticky="SE", **padding)
 
 # Create a frame holding some stats.
 frm_stats = ttk.Frame(mainframe)
-frm_stats.grid(column=2, row=1, sticky="NWE", rowspan=2)
+frm_stats.grid(column=2, row=1, sticky="NWE", rowspan=3)
 
 # Create a frame holding the 'Proficiencies & Languages' Block.
 frm_p_l = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_p_l.grid(column=0, row=3, **padding, sticky='N')
+headers.profHeader(frm_p_l)
+frm_p_l.grid(column=0, row=3, **padding)
 
 
 # Create all of the basic information for a new character, place at top of screen.
@@ -206,8 +236,8 @@ charLevelList = basicInfoEntry("Level:", 2, 1)
 charAlignList = basicInfoEntry("Alignment:", 4, 0)
 charBgList = basicInfoEntry("Background:", 4, 1)
 
-# Will hold all of the info in the abilities frame. 
-# Dict key ability name, value is list index 0 Label, index 1 Entry
+# Will hold all of the info in the abilities frame. Dict keys are row, values:
+# 0->Ability, 1->Entry, 2->Lbl
 abilDict = {}
 for row, abil in enumerate(ABILITY_NAMES):
     abilDict[abil] = abilityEntry(abil, row)
