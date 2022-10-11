@@ -6,8 +6,12 @@ padding = {'padx': 5, 'pady': 5}
 def statEntry(stat, col, row, window, frame):
     """Creates the frames and Entry objects for the various stats of a character.
     Returns the Entry Field object or Checkbutton object"""
-    frm_stat = ttk.Frame(frame, borderwidth=5, relief=GROOVE)
-    frm_stat.grid(column=col, row=row, **padding)
+    frm_stat = ttk.Frame(
+        frame,
+        borderwidth=5,
+        relief=GROOVE,
+      )
+    frm_stat.grid(column=col, row=row, **padding, sticky='NWES')
     lbl_stat = Label(frm_stat, text=stat)
     lbl_stat.grid(column=col, row=row, **padding)
     if stat == 'INSPIRATION':
