@@ -1,15 +1,14 @@
-from audioop import add
-from concurrent.futures.process import _system_limits_checked
 from tkinter import *
 from tkinter import ttk
 import headers
 import os
+import stats
+import char_p_l as pl
 
 # If changed, edit skillModLbls
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
-# If changed, edit statEntry implementation in script.
-STATS = ['ARMOR CLASS', 'HIT POINTS', 'INITIATIVE',
- 'INSPIRATION', 'PROFICIENCY', 'SPEED']
+STATS = ['ARMOR CLASS', 'HIT POINTS', 'MAX HP', 'INITIATIVE', 'PROFICIENCY',
+ 'INSPIRATION', 'SPEED', 'TEMP HP', 'HIT DICE']
 
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
@@ -50,6 +49,7 @@ def abilityEntry(abilityName, row):
     abilList.append(lbl_mod)
     return abilList
 
+
 def genAbilMod(baseScore):
     """Called to generate the modifier for a given ability score, baseScore. Convert
     string input to int, process, return string."""
@@ -67,6 +67,7 @@ def genAbilMod(baseScore):
         abilityScoreTable += 2
         abilityModifier += 1
     return abilityModifier
+
 
 def abilValidate(P):
     """Input validation for the ability score input fields. Only accepts 
@@ -105,6 +106,7 @@ def skillLbl(skillName, row):
     skillsList.append(lbl_bonus)
     return skillsList
 
+
 def skillbonus(mod):
     """Fetches the bonus from the label being displayed by the ability scores."""
     return abilDict[mod][2].cget('text')
@@ -123,42 +125,12 @@ def addProf():
         else:
             skillDict[i][3].configure(text=skillbonus(skillDict[i][1].cget('text')))
             
+
 def addProfCallback(event):
     """Cheeky workaround to allow addProf to function as a Checkbox and an event.
     Probably bad practice, but works well."""
     addProf()
 
-def statEntry(stat, col, row):
-    """Creates the frames and Entry objects for the various stats of a character.
-    Returns the Entry Field object or Checkbutton object"""
-    frm_stat = ttk.Frame(frm_stats, borderwidth=5, relief=GROOVE)
-    frm_stat.grid(column=col, row=row, sticky="NWES", **padding)
-    lbl_stat = Label(frm_stat, text=stat)
-    lbl_stat.grid(column=col, row=row, **padding)
-    if stat == 'INSPIRATION':
-        window.chkVar = IntVar()
-        window.chkVar.set(0)
-        chk_stat = ttk.Checkbutton(frm_stat, variable=window.chkVar, text='Advantage')
-        chk_stat.grid(column=col, row=row+1)
-        return chk_stat
-    vcmd = (window.register(statValidate), '%P')
-    ent_stat = Entry(
-        frm_stat,
-        width=4,
-        validate='key',
-        validatecommand=vcmd
-    )
-    ent_stat.grid(column=col, row=row+1, **padding)
-    return ent_stat
-
-
-def statValidate(P):
-    """Validate inputs for the stat objects. Takes Digits only."""
-    if len(P) == 0 or (len(P) > 0 and P.isdigit()):
-        return True
-    else:
-        window.bell()
-        return False
 
 def genAbilBonus(event):
     """Generate the bonus for an ability score whenever focus leaves an Entry 
@@ -169,6 +141,7 @@ def genAbilBonus(event):
         if not abilDict[abil][1].get() == '':  # If the field isn't blank:
             abilDict[abil][2].configure(text=genAbilMod(abilDict[abil][1].get()))
 
+
 def genSkillBonus(event):
     """Generate the bonus displayed in the skills frame. Gets the score from the 
     abilDict."""
@@ -176,7 +149,6 @@ def genSkillBonus(event):
         # Changes the skill bonus label text to reflect the ability score bonus.
         skillDict[row][3].configure(
             text=genAbilMod(abilDict[skillDict[row][1].cget('text')][1].get()))
-
 
 
 # Create the Tk class object titled Character sheet.        
@@ -208,7 +180,7 @@ headers.abilHeader(mainframe)
 
 # Create a frame for skills, and proficiency checkboxes.
 frm_skills = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_skills.grid(column=1, row=2, sticky="W", padx=5)
+frm_skills.grid(column=1, row=2, sticky="W", padx=5, rowspan=2)
 # Create headers for the skills frame.
 headers.skillHeader(mainframe)
 
@@ -217,9 +189,13 @@ frm_button = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 frm_button.grid(column=2, row=3, sticky="SE", **padding)
 
 # Create a frame holding some stats.
-# AC, Speed, Initiative, Proficiency, HP, Inspiration
 frm_stats = ttk.Frame(mainframe)
 frm_stats.grid(column=2, row=1, sticky="NWE", rowspan=2)
+
+# Create a frame holding the 'Proficiencies & Languages' Block.
+frm_p_l = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+frm_p_l.grid(column=0, row=3, **padding, sticky='N')
+
 
 # Create all of the basic information for a new character, place at top of screen.
 # Each item is a list with index 0 Label, index 1 Entry objects.
@@ -250,18 +226,27 @@ with open(skillFile, 'r') as sf:
         skillDict[row] = skillLbl(skill.strip(), row)
 
 # Create the block holding various stat elements.
-sCol = 0
-sRow = 0
 statDict = {}
-for i, stat in enumerate(STATS):
-    if i == 3:
-        sRow = 2
-        sCol = 0
-    sCol += 1
-    statDict[stat] = (statEntry(stat, sCol, sRow))
+statDict[STATS[0]] = stats.statEntry(STATS[0], 0, 0, window, frm_stats)
+statDict[STATS[1]] = stats.statEntry(STATS[1], 1, 0, window, frm_stats)
+statDict[STATS[2]] = stats.statEntry(STATS[2], 1, 1, window, frm_stats)
+statDict[STATS[3]] = stats.statEntry(STATS[3], 2, 0, window, frm_stats)
+statDict[STATS[4]] = stats.statEntry(STATS[4], 0, 1, window, frm_stats)
+statDict[STATS[5]] = stats.statEntry(STATS[5], 2, 1, window, frm_stats)
+statDict[STATS[6]] = stats.statEntry(STATS[6], 0, 2, window, frm_stats)
+statDict[STATS[7]] = stats.statEntry(STATS[7], 1, 2, window, frm_stats)
+statDict[STATS[8]] = stats.statEntry(STATS[8], 2, 2, window, frm_stats)
+
+# Create the Proficiencies and Language Text Box
+plDict = {}
+plDict['Armor'] = pl.otherProfs(frm_p_l, 0, 0, 'Armor')
+plDict['Weapons'] = pl.otherProfs(frm_p_l, 0, 2, 'Weapons')
+plDict['Tools'] = pl.otherProfs(frm_p_l, 0, 4, 'Tools')
+plDict['Languages'] = pl.otherProfs(frm_p_l, 0, 6, 'Languages')
 
 def handle_button():
     print()
 button = ttk.Button(frm_button, text="Print values", command=handle_button)
 button.pack()
+
 window.mainloop()
