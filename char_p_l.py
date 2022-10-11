@@ -8,7 +8,7 @@ def otherProfs(frame, col, row, name):
     txt_prof = ScrolledText(
         frame,
         height=3,
-        width=15,
+        width=20,
         wrap=WORD,
         )
     txt_prof.grid(column=col, row=row+2, padx=5, pady=5)
