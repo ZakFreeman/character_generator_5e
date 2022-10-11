@@ -1,5 +1,11 @@
 # character_generator_5e
 A character Generator for random D&D 5E characters, or characters from user input.
+10/11/22
+------
+Implemented various non-dynamic entry fields, such as inventory and proficiencies.
+Implemented dynamic saving throw checkboxes. 
+Moved several functions into other files. 
+
 10/10/22
 ------
 Re-wrote the whole thing for better variable storage. Fully functional right now, 
