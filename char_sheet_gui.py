@@ -3,7 +3,7 @@ from tkinter import ttk
 import headers
 import os
 import stats
-import char_p_l as pl
+import char_entry_fields as cef
 
 # If changed, edit skillModLbls
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
@@ -14,12 +14,12 @@ def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
     position of column and row for the grid."""
     basicInfoList = []
-    lbl_basic = ttk.Label(frm_basicInfo, text=lbl_name)
-    lbl_basic.grid(column=column, row=row, **padding, sticky="W")
+    lbl_basic = Label(frm_basicInfo, text=lbl_name)
+    lbl_basic.grid(column=column, row=row, **padding)
     basicInfoList.append(lbl_basic)
     # The StringVar() class can be used to track changes in entry fields.
-    ent_basic = ttk.Entry(frm_basicInfo)
-    ent_basic.grid(column=column+1, row=row, **padding, sticky="W")
+    ent_basic = Entry(frm_basicInfo)
+    ent_basic.grid(column=column+1, row=row, **padding)
     basicInfoList.append(ent_basic)
     return basicInfoList
 
@@ -45,12 +45,12 @@ def abilityEntry(abilityName, row):
     abilList.append(ent_ability)
     # Label for ability modifier.
     lbl_mod = Label(frm_abilities, text=genAbilMod(ent_ability.get()))
-    lbl_mod.grid(column=2, row=row)
+    lbl_mod.grid(column=2, row=row, **padding)
     abilList.append(lbl_mod)
     # Checkbox for saving throw proficiency
     chk_var = BooleanVar()
     chk_save = ttk.Checkbutton(frm_abilities, variable=chk_var, command=addSaveProf)
-    chk_save.grid(column=3, row=row, **padding)
+    chk_save.grid(column=3, row=row, padx=(5,0))
     abilList.append(chk_var)
     # Label for saving throw value
     lbl_save = Label(frm_abilities, text=genAbilMod(ent_ability.get()))
@@ -102,15 +102,15 @@ def skillLbl(skillName, row):
     skillChkbox.grid(column=0, row=row, **padding, sticky='NEWS')
     skillsList.append(chkVar)
     # Modifier affecting the skill.
-    lbl_mod = ttk.Label(frm_skills, text=mod.strip())
+    lbl_mod = Label(frm_skills, text=mod.strip())
     lbl_mod.grid(column=1,row=row, **padding)
     skillsList.append(lbl_mod)
     # Skill name.
-    lbl_skill = ttk.Label(frm_skills, text=skill.strip())
+    lbl_skill = Label(frm_skills, text=skill.strip())
     lbl_skill.grid(column=2,row=row, **padding, sticky='W')
     skillsList.append(lbl_skill)
     # Skill Bonus
-    lbl_bonus = ttk.Label(frm_skills, text=skillbonus(lbl_mod.cget('text')))
+    lbl_bonus = Label(frm_skills, text=skillbonus(lbl_mod.cget('text')))
     lbl_bonus.grid(column=3, row=row, **padding, sticky='E')
     skillsList.append(lbl_bonus)
     return skillsList
@@ -127,25 +127,26 @@ def addProf():
         if statDict['PROFICIENCY'].get() == '' or skillDict[i][3].cget('text') == '__':
             pass
         elif skillDict[i][0].get():  # Enter this block if the checkbox is on
-            profMod = int(statDict['PROFICIENCY'].get())
             # Generate the modifier based off the input from ability score Entry object.
-            newMod = genAbilMod(abilDict[skillDict[i][1].cget('text')][1].get()) + profMod
+            newMod = skillbonus(
+                skillDict[i][1].cget('text')) + int(statDict['PROFICIENCY'].get())
             skillDict[i][3].configure(text=newMod)
         else:
             skillDict[i][3].configure(text=skillbonus(skillDict[i][1].cget('text')))
             
 
 def addSaveProf():
+    """Loops through ability list to add saving throw proficiencies to checkboxes."""
     for i, abil in enumerate(abilDict.keys()):
         if statDict['PROFICIENCY'].get() == '' or abilDict[abil][2].cget('text') == '__':
             pass
         elif abilDict[abil][3].get():
             profMod = int(statDict['PROFICIENCY'].get())
             # Generate the modifier based off the input from ability score Entry object.
-            newMod = genAbilMod(abilDict[abil][1].get()) + profMod
+            newMod = skillbonus(abil) + profMod
             abilDict[abil][4].configure(text=newMod)
         else:
-            abilDict[abil][4].configure(text=genAbilMod(abilDict[abil][1].get()))
+            abilDict[abil][4].configure(text=skillbonus(abil))
 
 
 def addProfCallback(event):
@@ -193,39 +194,44 @@ window.bind_all('<Button-1>', lambda event: event.widget.focus_set())
 padding = {'padx': 5, 'pady': 5}
 mainframe = ttk.Frame(window, padding="10 10 10 10")
 mainframe.grid(column=0, row=0, sticky="nsew")
-window.columnconfigure(0, weight=1)
-window.rowconfigure(0, weight=1)
 
 # Create a frame for basic character info.
 frm_basicInfo = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-# Formatting compromise: columnspan of 10
-frm_basicInfo.grid(column=0, row=0, columnspan=10, sticky="WE", **padding)
+frm_basicInfo.grid(column=0, row=0, columnspan=3, sticky="W", **padding)
+
+# Create a frame holding death saving throws.
+frm_dSaves = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+frm_dSaves.grid(column=0, row=3, **padding, sticky='NWS')
 
 # Create a frame for ability scores, modifiers.
 frm_abilities = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_abilities.grid(column=0, row=2, sticky="NWE", padx=5)
+frm_abilities.grid(column=0, row=1, sticky="NWES", **padding)
 # Create headers for the ability frame.
-headers.abilHeader(mainframe)
+headers.abilHeader(frm_abilities)
 
 # Create a frame for skills, and proficiency checkboxes.
 frm_skills = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_skills.grid(column=1, row=2, sticky="W", padx=5, rowspan=2)
+frm_skills.grid(column=1, row=1, sticky="NW", **padding, rowspan=2)
 # Create headers for the skills frame.
-headers.skillHeader(mainframe)
+headers.skillHeader(frm_skills)
 
 # Create a frame for the button.
 frm_button = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_button.grid(column=2, row=3, sticky="SE", **padding)
+frm_button.grid(column=10, row=10, sticky="SE", **padding)
 
 # Create a frame holding some stats.
 frm_stats = ttk.Frame(mainframe)
-frm_stats.grid(column=2, row=1, sticky="NWE", rowspan=3)
+frm_stats.grid(column=2, row=1, sticky="NWE")
 
 # Create a frame holding the 'Proficiencies & Languages' Block.
 frm_p_l = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 headers.profHeader(frm_p_l)
-frm_p_l.grid(column=0, row=3, **padding)
+frm_p_l.grid(column=0, row=2, **padding, sticky='NWE')
 
+# Create a frame holding the Equipment block.
+frm_equip = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+headers.equipHeader(frm_equip)
+frm_equip.grid(column=2, row=2, **padding, sticky='NW', rowspan=2)
 
 # Create all of the basic information for a new character, place at top of screen.
 # Each item is a list with index 0 Label, index 1 Entry objects.
@@ -236,24 +242,30 @@ charLevelList = basicInfoEntry("Level:", 2, 1)
 charAlignList = basicInfoEntry("Alignment:", 4, 0)
 charBgList = basicInfoEntry("Background:", 4, 1)
 
-# Will hold all of the info in the abilities frame. Dict keys are row, values:
-# 0->Ability, 1->Entry, 2->Lbl
+# Create the Death Saving Throws box
+headers.dSaveHeader(frm_dSaves)
+dsaveList = []
+dsaveList.append(cef.deathSave(frm_dSaves, 'Successes', 1))
+dsaveList.append(cef.deathSave(frm_dSaves, 'Failures', 3))
+
+# Will hold all of the info in the abilities frame. Dict keys == ability, values:
+# 0->Ability Label, 1->Entry, 2->Bonus Label, 3->BooleanVar, 4-> Save bonus Label.
 abilDict = {}
 for row, abil in enumerate(ABILITY_NAMES):
-    abilDict[abil] = abilityEntry(abil, row)
+    abilDict[abil] = abilityEntry(abil, row+1)
 
 # Get the path of the charSkills file.
 absFilePath = os.path.dirname(os.path.abspath(__file__))
 skillFile = os.path.join(absFilePath, 'charSkills.txt')
-# Key = row, values are a list with indexes:
-# 0->Checkbutton Object, 1-> Mod Label, 2-> Skill Name Label, 3-> Skill Bonus Label
+# Key == row, values are a list with indexes:
+# 0->BooleanVar, 1-> Mod Label, 2-> Skill Name Label, 3-> Skill Bonus Label
 skillDict = {}
 with open(skillFile, 'r') as sf:
     skillList = sf.readlines()
     skillList.sort()
     # Create the skill checkboxes and labels.
     for row, skill in enumerate(skillList):
-        skillDict[row] = skillLbl(skill.strip(), row)
+        skillDict[row] = skillLbl(skill.strip(), row+1)
 
 # Create the block holding various stat elements.
 statDict = {}
@@ -269,10 +281,15 @@ statDict[STATS[8]] = stats.statEntry(STATS[8], 2, 2, window, frm_stats)
 
 # Create the Proficiencies and Language Text Box
 plDict = {}
-plDict['Armor'] = pl.otherProfs(frm_p_l, 0, 0, 'Armor')
-plDict['Weapons'] = pl.otherProfs(frm_p_l, 0, 2, 'Weapons')
-plDict['Tools'] = pl.otherProfs(frm_p_l, 0, 4, 'Tools')
-plDict['Languages'] = pl.otherProfs(frm_p_l, 0, 6, 'Languages')
+plDict['Armor'] = cef.otherProfs(frm_p_l, 0, 0, 'Armor')
+plDict['Weapons'] = cef.otherProfs(frm_p_l, 0, 2, 'Weapons')
+plDict['Tools'] = cef.otherProfs(frm_p_l, 0, 4, 'Tools')
+plDict['Languages'] = cef.otherProfs(frm_p_l, 0, 6, 'Languages')
+
+# Create the Equipment box.
+eqDict = {}
+for i in range(20):
+    eqDict[i] = cef.equipEntry(frm_equip, i)
 
 def handle_button():
     print()
