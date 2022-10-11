@@ -12,6 +12,8 @@ def abilHeader(frame):
     lbl_abilScoreHeader.grid(column=1, row=0, padx=2)
     lbl_abilModHeader = Label(hFrame, text='Mod')
     lbl_abilModHeader.grid(column=2, row=0, padx=2)
+    lbl_saveHeader = Label(hFrame, text='Save')
+    lbl_saveHeader.grid(column=3, row=0, padx=2)
 
 
 def skillHeader(frame):
@@ -25,3 +27,7 @@ def skillHeader(frame):
     lbl_sHeader.grid(column=2, row=0, padx=5)
     lbl_bHeader = Label(hFrame, text='Bonus')
     lbl_bHeader.grid(column=3, row=0, padx=5, sticky='E')
+
+def profHeader(frame):
+    lbl_pHead = Label(frame, text='Proficiencies & Languages')
+    lbl_pHead.grid(column=0, row=0)
