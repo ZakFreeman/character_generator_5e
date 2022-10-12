@@ -1,10 +1,11 @@
+from operator import mod
 from tkinter import *
 from tkinter import ttk
-from turtle import width
 import headers
 import os
 import stats
 import char_entry_fields as cef
+import buttons
 
 # If changed, edit skillModLbls
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
@@ -15,15 +16,14 @@ MONEY = ['CP', 'SP', 'EP', 'GP', 'PP']
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
     position of column and row for the grid."""
-    basicInfoList = []
-    lbl_basic = Label(frm_basicInfo, text=lbl_name)
+    basicinfoList = []
+    lbl_basic = Label(frm_basicInfo, text=lbl_name, font='helvetica 12')
     lbl_basic.grid(column=column, row=row, **padding)
-    basicInfoList.append(lbl_basic)
-    # The StringVar() class can be used to track changes in entry fields.
+    basicinfoList.append(lbl_basic)
     ent_basic = Entry(frm_basicInfo)
     ent_basic.grid(column=column+1, row=row, **padding)
-    basicInfoList.append(ent_basic)
-    return basicInfoList
+    basicinfoList.append(ent_basic)
+    return basicinfoList
 
 
 def abilityEntry(abilityName, row):
@@ -240,25 +240,32 @@ frm_money.grid(column=1, row=3, **padding, sticky='NWE', columnspan=2)
 frm_button = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 frm_button.grid(column=3, row=10, sticky="SE", **padding)
 
+# A dict holding all of the dictionaries created to hold values.
+saveDict = {}
+
 # Create all of the basic information for a new character, place at top of screen.
 # Each item is a list with index 0 Label, index 1 Entry objects.
-charNameList = basicInfoEntry("Name:", 0, 0)
-charClassList = basicInfoEntry("Class:", 0, 1)
-charRaceList = basicInfoEntry("Race:", 2, 0)
-charLevelList = basicInfoEntry("Level:", 2, 1)
-charAlignList = basicInfoEntry("Alignment:", 4, 0)
-charBgList = basicInfoEntry("Background:", 4, 1)
+basicinfoDict = {}
+basicinfoDict['Name'] = basicInfoEntry("Name:", 0, 0)
+basicinfoDict['Class'] = basicInfoEntry("Class:", 0, 1)
+basicinfoDict['Race'] = basicInfoEntry("Race:", 2, 0)
+basicinfoDict['Level'] = basicInfoEntry("Level:", 2, 1)
+basicinfoDict['Alignment'] = basicInfoEntry("Alignment:", 4, 0)
+basicinfoDict['Background'] = basicInfoEntry("Background:", 4, 1)
+saveDict['basicinfo'] = basicinfoDict
 
 # Create the Death Saving Throws box
-dsaveList = []
-dsaveList.append(cef.deathSave(frm_dSaves, 'Successes', 1))
-dsaveList.append(cef.deathSave(frm_dSaves, 'Failures', 3))
+dsaveDict = {}
+dsaveDict['Successes'] = cef.deathSave(frm_dSaves, 'Successes', 1)
+dsaveDict['Failures'] = cef.deathSave(frm_dSaves, 'Failures', 3)
+saveDict['deathsaves'] = dsaveDict
 
 # Will hold all of the info in the abilities frame. Dict keys == ability, values:
 # 0->Ability Label, 1->Entry, 2->Bonus Label, 3->BooleanVar, 4-> Save bonus Label.
 abilDict = {}
 for row, abil in enumerate(ABILITY_NAMES):
     abilDict[abil] = abilityEntry(abil, row+1)
+saveDict['abilities'] = abilDict
 
 # Get the path of the charSkills file.
 absFilePath = os.path.dirname(os.path.abspath(__file__))
@@ -272,6 +279,7 @@ with open(skillFile, 'r') as sf:
     # Create the skill checkboxes and labels.
     for row, skill in enumerate(skillList):
         skillDict[row] = skillLbl(skill.strip(), row+1)
+saveDict['skills'] = skillDict
 
 # Create the block holding various stat elements.
 statDict = {}
@@ -284,6 +292,7 @@ statDict[STATS[5]] = stats.statEntry(STATS[5], 2, 1, window, frm_stats)
 statDict[STATS[6]] = stats.statEntry(STATS[6], 0, 2, window, frm_stats)
 statDict[STATS[7]] = stats.statEntry(STATS[7], 1, 2, window, frm_stats)
 statDict[STATS[8]] = stats.statEntry(STATS[8], 2, 2, window, frm_stats)
+saveDict['stats'] = statDict
 
 # Create the Proficiencies and Language Text Box
 plDict = {}
@@ -291,20 +300,24 @@ plDict['Armor'] = cef.otherProfs(frm_p_l, 0, 0, 'Armor')
 plDict['Weapons'] = cef.otherProfs(frm_p_l, 0, 2, 'Weapons')
 plDict['Tools'] = cef.otherProfs(frm_p_l, 0, 4, 'Tools')
 plDict['Languages'] = cef.otherProfs(frm_p_l, 0, 6, 'Languages')
+saveDict['profs'] = plDict
 
 # Create the Equipment box.
 eqDict = {}
 for i in range(20):
     eqDict[i] = cef.equipEntry(frm_equip, i)
+saveDict['equipment'] = eqDict
 
 # Create the money tracker.
 monDict = {}
 for col, coin in enumerate(MONEY):
     monDict[coin] = cef.wealth(frm_money, coin, col)
+saveDict['money'] = monDict
 
-def handle_button():
-    print()
-button = ttk.Button(frm_button, text="Print values", command=handle_button)
+button = ttk.Button(
+    frm_button,
+    text="Save",
+    command=lambda : buttons.saveButton(saveDict))
 button.pack()
 
 window.mainloop()
