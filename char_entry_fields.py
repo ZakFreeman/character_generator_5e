@@ -33,7 +33,7 @@ def otherProfs(frame, col, row, name):
 def deathSave(frame, type, row):
     """Create the objects representing death saving throws."""
     lbl_saveType = Label(frame, text=type)
-    lbl_saveType.grid(column=0, row=row, columnspan=3, sticky='W', padx=5)
+    lbl_saveType.grid(column=0, row=row, columnspan=3, padx=5)
     bvList = []
     for i in range(3):
         bv = BooleanVar()
@@ -41,3 +41,14 @@ def deathSave(frame, type, row):
         chk.grid(column=i, row=row+1)
         bvList.append(bv)
     return bvList
+
+
+def wealth(frame, coin, col):
+    coinList = []
+    lbl_coin = Label(frame, text=coin, font='helvetica 12')
+    lbl_coin.grid(column=col, row=0)
+    coinList.append(lbl_coin)
+    ent_coin = Entry(frame, width=8)
+    ent_coin.grid(column=col, row=1, padx=5, pady=5)
+    coinList.append(ent_coin)
+    return coinList

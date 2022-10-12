@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from turtle import width
 import headers
 import os
 import stats
@@ -9,6 +10,7 @@ import char_entry_fields as cef
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 STATS = ['ARMOR CLASS', 'HIT POINTS', 'MAX HP', 'INITIATIVE', 'PROFICIENCY',
  'INSPIRATION', 'SPEED', 'TEMP HP', 'HIT DICE']
+MONEY = ['CP', 'SP', 'EP', 'GP', 'PP']
 
 def basicInfoEntry(lbl_name, column, row):
     """Make a basic Label: entry structure. Pass the name of the label, then
@@ -32,7 +34,7 @@ def abilityEntry(abilityName, row):
     vcmd = (window.register(abilValidate), '%P')
     # Label Holding ability name
     lbl_ability = Label(frm_abilities, text=f'{abilityName}:')
-    lbl_ability.grid(row=row, sticky='W')
+    lbl_ability.grid(row=row)
     abilList.append(lbl_ability)
     # Entry object for the score to go in.
     ent_ability = Entry(
@@ -99,7 +101,7 @@ def skillLbl(skillName, row):
         command=addProf,
         variable=chkVar,
     )
-    skillChkbox.grid(column=0, row=row, **padding, sticky='NEWS')
+    skillChkbox.grid(column=0, row=row, **padding)
     skillsList.append(chkVar)
     # Modifier affecting the skill.
     lbl_mod = Label(frm_skills, text=mod.strip())
@@ -111,7 +113,7 @@ def skillLbl(skillName, row):
     skillsList.append(lbl_skill)
     # Skill Bonus
     lbl_bonus = Label(frm_skills, text=skillbonus(lbl_mod.cget('text')))
-    lbl_bonus.grid(column=3, row=row, **padding, sticky='E')
+    lbl_bonus.grid(column=3, row=row, **padding)
     skillsList.append(lbl_bonus)
     return skillsList
 
@@ -197,41 +199,46 @@ mainframe.grid(column=0, row=0, sticky="nsew")
 
 # Create a frame for basic character info.
 frm_basicInfo = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_basicInfo.grid(column=0, row=0, columnspan=3, sticky="W", **padding)
+frm_basicInfo.grid(column=0, row=0, columnspan=4, sticky="W", **padding)
 
 # Create a frame holding death saving throws.
 frm_dSaves = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_dSaves.grid(column=0, row=3, **padding, sticky='NWS')
+frm_dSaves.grid(column=0, row=3, **padding, sticky='NSEW')
+headers.dSaveHeader(frm_dSaves)
 
 # Create a frame for ability scores, modifiers.
 frm_abilities = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_abilities.grid(column=0, row=1, sticky="NWES", **padding)
+frm_abilities.grid(column=0, row=1, sticky="NWES", **padding, columnspan=2)
 # Create headers for the ability frame.
 headers.abilHeader(frm_abilities)
 
 # Create a frame for skills, and proficiency checkboxes.
 frm_skills = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_skills.grid(column=1, row=1, sticky="NW", **padding, rowspan=2)
+frm_skills.grid(column=2, row=1, sticky="NWS", **padding, rowspan=2)
 # Create headers for the skills frame.
 headers.skillHeader(frm_skills)
 
-# Create a frame for the button.
-frm_button = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-frm_button.grid(column=10, row=10, sticky="SE", **padding)
-
 # Create a frame holding some stats.
 frm_stats = ttk.Frame(mainframe)
-frm_stats.grid(column=2, row=1, sticky="NWE")
+frm_stats.grid(column=3, row=1, sticky="NWE")
 
 # Create a frame holding the 'Proficiencies & Languages' Block.
 frm_p_l = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 headers.profHeader(frm_p_l)
-frm_p_l.grid(column=0, row=2, **padding, sticky='NWE')
+frm_p_l.grid(column=0, row=2, **padding, sticky='NWES', columnspan=2)
 
 # Create a frame holding the Equipment block.
 frm_equip = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 headers.equipHeader(frm_equip)
-frm_equip.grid(column=2, row=2, **padding, sticky='NW', rowspan=2)
+frm_equip.grid(column=3, row=2, **padding, sticky='NW', rowspan=2)
+
+# Create a frame holding money values.
+frm_money = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+frm_money.grid(column=1, row=3, **padding, sticky='NWE', columnspan=2)
+
+# Create a frame for the button.
+frm_button = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+frm_button.grid(column=3, row=10, sticky="SE", **padding)
 
 # Create all of the basic information for a new character, place at top of screen.
 # Each item is a list with index 0 Label, index 1 Entry objects.
@@ -243,7 +250,6 @@ charAlignList = basicInfoEntry("Alignment:", 4, 0)
 charBgList = basicInfoEntry("Background:", 4, 1)
 
 # Create the Death Saving Throws box
-headers.dSaveHeader(frm_dSaves)
 dsaveList = []
 dsaveList.append(cef.deathSave(frm_dSaves, 'Successes', 1))
 dsaveList.append(cef.deathSave(frm_dSaves, 'Failures', 3))
@@ -290,6 +296,11 @@ plDict['Languages'] = cef.otherProfs(frm_p_l, 0, 6, 'Languages')
 eqDict = {}
 for i in range(20):
     eqDict[i] = cef.equipEntry(frm_equip, i)
+
+# Create the money tracker.
+monDict = {}
+for col, coin in enumerate(MONEY):
+    monDict[coin] = cef.wealth(frm_money, coin, col)
 
 def handle_button():
     print()
