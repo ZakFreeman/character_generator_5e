@@ -1,0 +1,1 @@
+{"ARMOR CLASS": "", "HIT POINTS": "", "MAX HP": "", "INITIATIVE": "", "PROFICIENCY": "", "INSPIRATION": false, "SPEED": "", "TEMP HP": "", "HIT DICE": ""}

@@ -1,1 +1,1 @@
-{"Successes": false, "Failures": false}
+{"Successes": [false, false, false], "Failures": [false, false, false]}
