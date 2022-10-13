@@ -15,11 +15,10 @@ def statEntry(stat, col, row, window, frame):
     lbl_stat = Label(frm_stat, text=stat)
     lbl_stat.grid(column=col, row=row, **padding)
     if stat == 'INSPIRATION':
-        window.chkVar = IntVar()
-        window.chkVar.set(0)
-        chk_stat = ttk.Checkbutton(frm_stat, variable=window.chkVar, text='Advantage')
+        chkVar = BooleanVar()
+        chk_stat = ttk.Checkbutton(frm_stat, variable=chkVar, text='Advantage')
         chk_stat.grid(column=col, row=row+1)
-        return chk_stat
+        return chkVar
     vcmd = (window.register(statValidate), '%P')
     ent_stat = Entry(
         frm_stat,
