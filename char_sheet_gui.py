@@ -279,7 +279,6 @@ with open(skillFile, 'r') as sf:
     # Create the skill checkboxes and labels.
     for row, skill in enumerate(skillList):
         skillDict[row] = skillLbl(skill.strip(), row+1)
-saveDict['skills'] = skillDict
 
 # Create the block holding various stat elements.
 statDict = {}
@@ -314,10 +313,10 @@ for col, coin in enumerate(MONEY):
     monDict[coin] = cef.wealth(frm_money, coin, col)
 saveDict['money'] = monDict
 
-button = ttk.Button(
+save_button = ttk.Button(
     frm_button,
     text="Save",
     command=lambda : buttons.saveButton(saveDict))
-button.pack()
+save_button.pack()
 
 window.mainloop()
