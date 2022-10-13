@@ -29,7 +29,7 @@ def labelEntrySave(dict, name):
 
 
 def labelMulEntrySave(dict, name):
-    """Handles save data generation for the death save dictionary."""
+    """Handles save data dictionaries with a list for the value."""
     with open(f'saveData/{name}.txt', 'w') as f:
         mulEntry = {}  # Remake dict as {Label : [List of values]}
         for label in dict:  # 'Successes', 'Failures'.
