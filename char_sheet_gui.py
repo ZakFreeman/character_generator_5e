@@ -301,11 +301,11 @@ plDict['Tools'] = cef.otherProfs(frm_p_l, 0, 4, 'Tools')
 plDict['Languages'] = cef.otherProfs(frm_p_l, 0, 6, 'Languages')
 saveDict['profs'] = plDict
 
-# Create the Equipment box.
-eqDict = {}
+# Create the Inventory box.
+invDict = {}
 for i in range(20):
-    eqDict[i] = cef.equipEntry(frm_equip, i)
-saveDict['equipment'] = eqDict
+    invDict[i] = cef.equipEntry(frm_equip, i)
+saveDict['inventory'] = invDict
 
 # Create the money tracker.
 monDict = {}
