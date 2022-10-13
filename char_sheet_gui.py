@@ -1,4 +1,3 @@
-from operator import mod
 from tkinter import *
 from tkinter import ttk
 import headers
