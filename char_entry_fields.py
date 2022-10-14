@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-def equipEntry(frame, row):
+def invEntry(frame, row):
     """Create the entry fields used to represent character equipment."""
     ent_list = []
     ent_item = Entry(frame, width=32)

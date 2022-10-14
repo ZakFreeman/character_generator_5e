@@ -303,7 +303,7 @@ saveDict['profs'] = plDict
 # Create the Inventory box.
 invDict = {}
 for i in range(20):
-    invDict[i] = cef.equipEntry(frm_inv, i)
+    invDict[i] = cef.invEntry(frm_inv, i)
 saveDict['inventory'] = invDict
 
 # Create the money tracker.
