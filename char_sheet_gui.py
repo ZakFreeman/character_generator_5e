@@ -5,6 +5,7 @@ import os
 import stats
 import char_entry_fields as cef
 import buttons
+import json
 
 # If changed, edit skillModLbls
 ABILITY_NAMES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
@@ -181,6 +182,100 @@ def genSkillBonus(event):
             text=genAbilMod(abilDict[skillDict[row][1].cget('text')][1].get()))
 
 
+def loadButton(savedDicts):
+    """Loads info saved in the text files into the loadDict dictionary. 
+    Finally paid for using global variables instead of a class."""
+    loadList = []
+    for name in savedDicts:
+        loadList.append(name)
+    for file in savedDicts:
+        with open(f'saveData/{file}.txt', 'r') as f:
+            text = f.read()
+            jdict = json.loads(text)
+            loadDict[file] = jdict
+    basicLoad(loadDict[loadList[0]])  # Basic info
+    dsaveLoad(loadDict[loadList[1]])  # Death Saves
+    abilLoad(loadDict[loadList[2]])  # Abilities
+    skillLoad(loadDict[loadList[3]])  # Skills
+    statLoad(loadDict[loadList[4]])  # Stats
+    profLoad(loadDict[loadList[5]])  # Proficiencies
+    invLoad(loadDict[loadList[6]])  # Inventory
+    monLoad(loadDict[loadList[7]])  # Money
+    abilDict[ABILITY_NAMES[1]][1].focus()  # These lines are used to 
+    abilDict[ABILITY_NAMES[0]][1].focus()  # call the FocusOut event callbacks.
+
+
+def basicLoad(dict):
+    """Loads the basic info into entry fields."""
+    for label in dict:
+        basicinfoDict[label][1].delete(0, 'end')
+        basicinfoDict[label][1].insert(0, dict[label])
+
+
+def dsaveLoad(dict):
+    """Loads the deathsave checkboxes."""
+    for savetype in dict:  # For each success or failure:
+        for i, chk in enumerate(dict[savetype]):  # Move through list of boxes.
+            if chk:  # Bool returns True/False
+                dsaveDict[savetype][i].set(True)
+            else:
+                dsaveDict[savetype][i].set(False)
+
+
+def abilLoad(dict):  # SAVE CHECKBOXES TODO
+    """Loads info from the json dicts into the entry fields for abilities."""
+    for mod in dict:
+        abilDict[mod][1].delete(0, 'end')
+        abilDict[mod][1].insert(0, dict[mod][0])
+        if dict[mod][1]:
+            abilDict[mod][3].set(True)
+        else:
+           abilDict[mod][3].set(False)
+
+
+def skillLoad(dict):
+    """Loads the skill checkboxes."""
+    for row in dict:
+        if dict[row]:
+            skillDict[int(row)][0].set(True)
+        else:
+            skillDict[int(row)][0].set(False)
+
+
+def statLoad(dict):
+    """Loads the stat boxes Entry Fields and checkboxes."""
+    for stat in dict:
+        if isinstance(statDict[stat], BooleanVar):  # The checkbox value.
+            statDict[stat].set(dict[stat])
+        else:
+            statDict[stat].delete(0, END)
+            statDict[stat].insert(0, dict[stat])
+
+
+def profLoad(dict):
+    """Loads the proficiencies text boxes. Also loads an extra newline
+    char whenever loaded, but unsure how to solve that."""
+    for prof in dict:
+        plDict[prof].delete('1.0', END)
+        plDict[prof].insert(END, dict[prof])
+
+
+def invLoad(dict):
+    """Loads the inventory items."""
+    for row in dict:
+        for i, detail in enumerate(dict[row]):
+            invDict[int(row)][i].delete(0, END)
+            invDict[int(row)][i].insert(0, detail)
+
+
+
+def monLoad(dict):
+    """Loads the money."""
+    for money in dict:
+        monDict[money][1].delete(0, END)
+        monDict[money][1].insert(0, dict[money])
+
+
 # Create the Tk class object titled Character sheet.        
 window = Tk()
 window.title("Character Sheet")
@@ -241,7 +336,7 @@ frm_button.grid(column=3, row=10, sticky="SE", **padding)
 
 # A dict holding all of the dictionaries created to hold values.
 saveDict = {}
-
+loadDict = {}   # A dict of dicts holding loaded data.
 # Create all of the basic information for a new character, place at top of screen.
 # Each item is a list with index 0 Label, index 1 Entry objects.
 basicinfoDict = {}
@@ -278,7 +373,7 @@ with open(skillFile, 'r') as sf:
     # Create the skill checkboxes and labels.
     for row, skill in enumerate(skillList):
         skillDict[row] = skillLbl(skill.strip(), row+1)
-
+saveDict['skills'] = skillDict
 # Create the block holding various stat elements.
 statDict = {}
 statDict[STATS[0]] = stats.statEntry(STATS[0], 0, 0, window, frm_stats)
@@ -315,7 +410,15 @@ saveDict['money'] = monDict
 save_button = ttk.Button(
     frm_button,
     text="Save",
-    command=lambda : buttons.saveButton(saveDict))
-save_button.pack()
+    command=lambda : buttons.saveButton(saveDict)
+    )
+save_button.pack(side='right')
+
+load_button = ttk.Button(
+    frm_button,
+    text="Load",
+    command=lambda : loadButton(saveDict)
+    )
+load_button.pack(side='left')
 
 window.mainloop()
