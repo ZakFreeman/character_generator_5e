@@ -1,1 +1,1 @@
-{"ARMOR CLASS": "", "HIT POINTS": "", "MAX HP": "", "INITIATIVE": "", "PROFICIENCY": "", "INSPIRATION": false, "SPEED": "", "TEMP HP": "", "HIT DICE": ""}
+{"ARMOR CLASS": "", "HIT POINTS": "", "MAX HP": "", "INITIATIVE": "", "PROFICIENCY": "1", "INSPIRATION": false, "SPEED": "", "TEMP HP": "", "HIT DICE": ""}
