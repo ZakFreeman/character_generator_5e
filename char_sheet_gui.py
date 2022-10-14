@@ -226,10 +226,10 @@ frm_p_l = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
 headers.profHeader(frm_p_l)
 frm_p_l.grid(column=0, row=2, **padding, sticky='NWES', columnspan=2)
 
-# Create a frame holding the Equipment block.
-frm_equip = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
-headers.equipHeader(frm_equip)
-frm_equip.grid(column=3, row=2, **padding, sticky='NW', rowspan=2)
+# Create a frame holding the Inventory block.
+frm_inv = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
+headers.invHeader(frm_inv)
+frm_inv.grid(column=3, row=2, **padding, sticky='NW', rowspan=2)
 
 # Create a frame holding money values.
 frm_money = ttk.Frame(mainframe, borderwidth=5, relief=GROOVE)
@@ -303,7 +303,7 @@ saveDict['profs'] = plDict
 # Create the Inventory box.
 invDict = {}
 for i in range(20):
-    invDict[i] = cef.equipEntry(frm_equip, i)
+    invDict[i] = cef.equipEntry(frm_inv, i)
 saveDict['inventory'] = invDict
 
 # Create the money tracker.
