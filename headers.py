@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import ttk
 
 padding = {'padx':5, 'pady':5}
 
