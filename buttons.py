@@ -6,13 +6,13 @@ def saveButton(savedDicts):
     saveNamesList = []  # Used to pass names for file generation.
     for name in savedDicts:
         saveNamesList.append(name)
-    labelEntrySave(savedDicts[saveNamesList[0]], saveNamesList[0])
-    labelMulEntrySave(savedDicts[saveNamesList[1]], saveNamesList[1])
-    labelEntrySave(savedDicts[saveNamesList[2]], saveNamesList[2])
-    statSave(savedDicts[saveNamesList[3]], saveNamesList[3])
-    statSave(savedDicts[saveNamesList[4]], saveNamesList[4])
-    labelMulEntrySave(savedDicts[saveNamesList[5]], saveNamesList[5])
-    labelEntrySave(savedDicts[saveNamesList[6]], saveNamesList[6])
+    labelEntrySave(savedDicts[saveNamesList[0]], saveNamesList[0])  # Basic
+    labelMulEntrySave(savedDicts[saveNamesList[1]], saveNamesList[1])  # Saves
+    labelEntrySave(savedDicts[saveNamesList[2]], saveNamesList[2])  # Abilities
+    statSave(savedDicts[saveNamesList[3]], saveNamesList[3])  # Stats
+    statSave(savedDicts[saveNamesList[4]], saveNamesList[4])  # Proficiencies
+    labelMulEntrySave(savedDicts[saveNamesList[5]], saveNamesList[5])  # Equipment
+    labelEntrySave(savedDicts[saveNamesList[6]], saveNamesList[6])  # Money
     return
 
 
