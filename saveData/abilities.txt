@@ -1,1 +1,1 @@
-{"STR": ["2", true], "DEX": ["3", false], "CON": ["", false], "INT": ["", false], "WIS": ["", false], "CHA": ["", false]}
+{"STR": ["", false], "DEX": ["", false], "CON": ["", false], "INT": ["", false], "WIS": ["", false], "CHA": ["", false]}

@@ -1,1 +1,1 @@
-{"Armor": "\n\n\n\n", "Weapons": "\n\n\n\n", "Tools": "\n\n\n\n", "Languages": "\n\n\n\n"}
+{"Armor": "\n", "Weapons": "\n", "Tools": "\n", "Languages": "\n"}
