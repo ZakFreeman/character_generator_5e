@@ -44,6 +44,7 @@ def deathSave(frame, type, row):
 
 
 def wealth(frame, coin, col):
+    """Create the money information box."""
     coinList = []
     lbl_coin = Label(frame, text=coin, font='helvetica 12')
     lbl_coin.grid(column=col, row=0)
